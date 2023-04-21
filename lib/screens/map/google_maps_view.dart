@@ -1,5 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
-
+import 'dart:async';
+import 'package:risk/screens/map/bottomSheet.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,9 +9,25 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:risk/screens/map/animationFloatingActionButton.dart';
 import 'package:risk/screens/map/appBar.dart';
 import 'package:risk/screens/map/mapSettingsBottomSheet.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
+Polygon ankara = const Polygon(
+  polygonId: PolygonId('Ankara'),
+  points: [
+    LatLng(39.756,32.566),
+   LatLng(39.870, 32.566),
+    LatLng(40.153, 32.511),
+LatLng(40.162, 32.676),
+LatLng( 40.026, 32.842),
+LatLng( 39.809, 32.880),
+LatLng( 39.687, 32.811),
+LatLng( 39.697, 32.639),
+LatLng( 39.756, 32.566),],
+  strokeWidth: 2,
+  strokeColor: Colors.red,
+  fillColor: Colors.transparent,
+);
 
-Location location = Location();
 double? speed;
 
 /*speedFunction() {
@@ -17,8 +35,6 @@ double? speed;
     speed = currentLocation.speed ?? 0;
   }));
 }*/
-
-
 
 class GoogleMapsView extends StatefulWidget {
   const GoogleMapsView({Key? key}) : super(key: key);
@@ -28,75 +44,79 @@ class GoogleMapsView extends StatefulWidget {
 }
 
 class _GoogleMapsViewState extends State<GoogleMapsView> {
+  late FlutterTts flutterTts;
 
+  bool _showingWarning = false;
 
+ /* algoritm() async {
+    bool serviceEnabled;
+    LocationPermission permission;
 
-  void _showBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          child: ListView(
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.location_on_outlined, color: Colors.black,),
-                title: Text('Hasanoğlan Bahçelievler, 06850 Elmadağ/Ankara'+' '+'', style: GoogleFonts.rajdhani(),),
-              ),
-              ListTile(
-                leading: Icon(Icons.emergency_share_rounded, color: Colors.black,),
-                title: Text('Kaza Sebepleri', style: GoogleFonts.rajdhani(fontWeight: FontWeight.bold),),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('%54 Kaza Sebep 1', style: GoogleFonts.rajdhani(),),
-                    Text('%31 Kaza Sebep 2', style: GoogleFonts.rajdhani(),),
-                    Text('%10 Kaza Sebep 3', style: GoogleFonts.rajdhani(),),
-                    Text('%54 Kaza Sebep 4', style: GoogleFonts.rajdhani(),),
-                  ],
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.ac_unit, color: Colors.black,),
-                title: Text('Kazaların Yaşandığı Tarihler', style: GoogleFonts.rajdhani(fontWeight: FontWeight.bold),),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('%55 Kış - Ocak', style: GoogleFonts.rajdhani(),),
-                    Text('%30 Sonbahar - Ekim', style: GoogleFonts.rajdhani(),),
-                    Text('%10 İlkbahar - Mayıs', style: GoogleFonts.rajdhani(),),
-                    Text('%30 Yaz - Haziran', style: GoogleFonts.rajdhani(),),
-                  ],
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.access_time_outlined, color: Colors.black,),
-                title: Text('Kazaların Yaşandığı Saatler', style: GoogleFonts.rajdhani(fontWeight: FontWeight.bold),),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('%60 Öğleden Önce - 07.54', style: GoogleFonts.rajdhani(),),
-                    Text('%40 Öğleden Sonra - 20.45', style: GoogleFonts.rajdhani(),),
-                  ],
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.cloud, color: Colors.black,),
-                title: Text('Kazaların Yaşandığı Hava Durumu', style: GoogleFonts.rajdhani(fontWeight: FontWeight.bold),),
-                subtitle: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(leading: Icon(Icons.severe_cold, color: Colors.black,), title: Text('%60 Yağışlı', style: GoogleFonts.rajdhani(),)),
-                    ListTile(leading: Icon(Icons.wb_sunny_outlined, color: Colors.black,),title: Text('%40 Açık', style: GoogleFonts.rajdhani(),)),
-                  ],
-                ),
-              ),
-            ],
-          ),
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return AlertDialog(
+        title: Text('Lütfen Konum Hizmetlerine İzin Verin!'),
+      );
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        // Kullanıcı konum erişimini vermedi, hata mesajı göster
+        return AlertDialog(
+          title: Text('Lütfen Konum Erişimine İzin Verin!'),
         );
-      },
-    );
-  }
+      }
+    }
 
+    if (permission == LocationPermission.deniedForever) {
+      return AlertDialog(
+        title: Text('Lütfen Ayarlardan Konum Hizmetlerine İzin Verin!'),
+      );
+    }
+
+    Position position = await Geolocator.getCurrentPosition();
+
+    double distance = Geolocator.distanceBetween(
+      position.latitude,
+      position.longitude,
+        39.90636764745673, 33.221895565809035,
+    );
+
+    if (distance <= 150) {
+      // Kullanıcı çemberin içinde veya çemberin yakınında, widget göster
+      _showWarning();
+      Timer(Duration(seconds: 10), () {
+        _hideWarning();
+      });
+    }
+  }*/
+
+
+
+  Widget _buildWarning() {
+    return _showingWarning
+        ? GestureDetector(
+      onTap: ()=> setState(() {
+        _speak('Risk Noktasına Yaklaşıyorsunuz, Lütfen Hızınızı Düşürün!');
+      }),
+          child: Container(
+            decoration: BoxDecoration(
+      color: Colors.red,
+      borderRadius: BorderRadius.circular(5.0),
+            ),
+      margin: EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(8.0),
+      child: Text(
+          'Risk Noktasına Yaklaşıyorsunuz, Lütfen Hızınızı Düşürün!',
+          style: TextStyle(color: Colors.white),
+      ),
+    ),
+        )
+        : SizedBox.shrink();
+  }
 
 
   //location
@@ -110,6 +130,103 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    flutterTts = FlutterTts();
+    _getCurrentLocation();
+  }
+
+  var _positionStream;
+
+  void _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Lütfen Konum Hizmetlerine İzin Verin!'),
+          );
+        },
+      );
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        // Kullanıcı konum erişimini vermedi, hata mesajı göster
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Lütfen Konum Erişimine İzin Verin!'),
+            );
+          },
+        );
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Lütfen Ayarlardan Konum Hizmetlerine İzin Verin!'),
+          );
+        },
+      );
+      return;
+    }
+    _positionStream = Geolocator.getPositionStream().listen(_onPositionUpdate);
+  }
+
+  Future _speak(String text) async {
+    await flutterTts.setLanguage("tr-TR"); // Dil ayarlaması
+    await flutterTts.setPitch(1); // Ses perdesi
+    await flutterTts.setSpeechRate(0.7); // Konuşma hızı
+    await flutterTts.speak(text); // Metni oku
+  }
+
+  void dispose() {
+    super.dispose();
+    flutterTts.stop();
+    _positionStream?.cancel();
+  }
+
+  void _onPositionUpdate(Position position) {
+    double distance = Geolocator.distanceBetween(
+      position.latitude,
+      position.longitude,
+        39.90737782488754, 33.22217606444013
+    );
+
+    if (distance <= 150) {
+      // Kullanıcı çemberin içinde veya çemberin yakınında, widget göster
+      _showWarning();
+      Timer(Duration(seconds: 10), () {
+        _hideWarning();
+      });
+    }
+  }
+
+  void _showWarning() {
+    setState(() {
+      _showingWarning = true;
+    });
+  }
+  void _hideWarning() {
+    setState(() {
+      _showingWarning = false;
+    });
+  }
+
 
   Widget build(BuildContext context) {
     return SafeArea(
@@ -122,18 +239,17 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
               mapToolbarEnabled: true,
               rotateGesturesEnabled: true,
               tiltGesturesEnabled: true,
-              zoomControlsEnabled: false,
+              zoomControlsEnabled: true,
               zoomGesturesEnabled: true,
-              buildingsEnabled: true,
-trafficEnabled: true,
+              buildingsEnabled: false,
+              trafficEnabled: traffic,
               mapType: mapType,
               initialCameraPosition: _cameraPosition,
-      myLocationButtonEnabled: true,
-      myLocationEnabled: true,
-      onMapCreated: (map){},
-
-circles: _circleSet(),
-
+              myLocationButtonEnabled: true,
+              myLocationEnabled: true,
+              onMapCreated: (map){},
+              polygons: {ankara},
+              circles: _circleSet(),
             ),
             const Align(
               alignment: Alignment.topCenter,
@@ -142,10 +258,16 @@ circles: _circleSet(),
                 child: AppBarWidget(),
               ),
             ),
-
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildWarning(),
+              ),
+              ),
           ],
         ),
-        floatingActionButton: AnimationFloatingActionButton(),
+        floatingActionButton: const AnimationFloatingActionButton(),
 
       ),
     );
@@ -170,7 +292,7 @@ Set<Circle> _circleSet(){
     strokeWidth: 0,
     onTap: (){
     setState(() {
-      _showBottomSheet();
+    riskPointBottomSheet(context);
     });
     },
     consumeTapEvents: true,

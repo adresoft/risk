@@ -1,0 +1,27 @@
+[
+  {
+    "noktaX": "123.123123",
+    "noktay": "12.123123",
+    "kazaSayisi": 13,
+    "kazalarinSebepleri": {
+      "Kaza Sebebi 1": "%54",
+      "Kaza Sebebi 2": "%31",
+      "Kaza Sebebi 3": "%10",
+      "Kaza Sebebi 4": "%05"
+    },
+    "kazalarinYasandigiTarihler" : {
+      "Kış - Ocak": "%55",
+      "Sonbahar - Ekim": "%30",
+      "İlkbahar - Mayıs": "%10",
+      "Yaz - Haziran": "%05"
+    },
+    "kazalarinYasandigiSaatler": {
+      "Öğleden Önce - 07.54": "%60",
+      "Öğleden Sonra - 20.45": "%40"
+  },
+    "kazalarinYasandigiHavaDurumu": {
+      "Yağışlı": "%60",
+      "Açık": "%40"
+    }
+  }
+]
