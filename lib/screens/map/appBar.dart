@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:location/location.dart';
 import 'google_maps_view.dart';
+
+LocationData? currentLocation;
+double speed = currentLocation!.speed ?? 0;
 
 class AppBarWidget extends StatelessWidget {
   const AppBarWidget({Key? key}) : super(key: key);
-
-
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -63,8 +64,8 @@ class AppBarWidget extends StatelessWidget {
               ),
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Icon(Icons.hourglass_empty, color: Colors.black,),
-                    SizedBox(width: 2,),
+                  children: [const Icon(Icons.hourglass_empty, color: Colors.black,),
+                    const SizedBox(width: 2,),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisSize: MainAxisSize.min,
@@ -74,7 +75,7 @@ class AppBarWidget extends StatelessWidget {
                       ],
                     ),]
               ),
-            );
+            );3
   }
 
   Container speedContainer() {
@@ -84,7 +85,7 @@ class AppBarWidget extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(5.0),
               ),
-              child: ListTile(leading: const Icon(Icons.speed, color: Colors.black,),title: Text('0', style: GoogleFonts.rajdhani(fontWeight: FontWeight.bold),),),
+              child: ListTile(leading: const Icon(Icons.speed, color: Colors.black,),title: Text(currentLocation == null ? 'Null' : speed.round().toString(), style: GoogleFonts.rajdhani(fontWeight: FontWeight.bold),),),
             );
   }
 }

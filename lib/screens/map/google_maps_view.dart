@@ -1,5 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages
 import 'dart:async';
+
 import 'package:risk/screens/map/bottomSheet.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
@@ -11,30 +12,36 @@ import 'package:risk/screens/map/appBar.dart';
 import 'package:risk/screens/map/mapSettingsBottomSheet.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
+
+
+
+Set<LatLng> riskPoints = {
+  const LatLng(39.92447870431509, 33.21703466803235),
+  const LatLng(39.96521,33.16189),
+  const LatLng(39.95219428726504, 33.188385228779964),
+  const LatLng(39.96503947341852, 33.1678746115696),
+  const LatLng(39.966733597008115, 33.141701590708294),
+};
+
 Polygon ankara = const Polygon(
   polygonId: PolygonId('Ankara'),
   points: [
     LatLng(39.756,32.566),
-   LatLng(39.870, 32.566),
+    LatLng(39.870, 32.566),
     LatLng(40.153, 32.511),
-LatLng(40.162, 32.676),
-LatLng( 40.026, 32.842),
-LatLng( 39.809, 32.880),
-LatLng( 39.687, 32.811),
-LatLng( 39.697, 32.639),
-LatLng( 39.756, 32.566),],
+    LatLng(40.162, 32.676),
+    LatLng( 40.026, 32.842),
+    LatLng( 39.809, 32.880),
+    LatLng( 39.687, 32.811),
+    LatLng( 39.697, 32.639),
+    LatLng( 39.756, 32.566),
+    LatLng(39.93236320706288, 32.65292041923445),
+  ],
   strokeWidth: 2,
   strokeColor: Colors.red,
-  fillColor: Colors.transparent,
+  fillColor: Colors.white,
 );
 
-double? speed;
-
-/*speedFunction() {
-  print(location.onLocationChanged.listen((LocationData currentLocation) {
-    speed = currentLocation.speed ?? 0;
-  }));
-}*/
 
 class GoogleMapsView extends StatefulWidget {
   const GoogleMapsView({Key? key}) : super(key: key);
@@ -45,56 +52,8 @@ class GoogleMapsView extends StatefulWidget {
 
 class _GoogleMapsViewState extends State<GoogleMapsView> {
   late FlutterTts flutterTts;
-
+  StreamSubscription<Position>? _positionStream;
   bool _showingWarning = false;
-
- /* algoritm() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return AlertDialog(
-        title: Text('Lütfen Konum Hizmetlerine İzin Verin!'),
-      );
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        // Kullanıcı konum erişimini vermedi, hata mesajı göster
-        return AlertDialog(
-          title: Text('Lütfen Konum Erişimine İzin Verin!'),
-        );
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return AlertDialog(
-        title: Text('Lütfen Ayarlardan Konum Hizmetlerine İzin Verin!'),
-      );
-    }
-
-    Position position = await Geolocator.getCurrentPosition();
-
-    double distance = Geolocator.distanceBetween(
-      position.latitude,
-      position.longitude,
-        39.90636764745673, 33.221895565809035,
-    );
-
-    if (distance <= 150) {
-      // Kullanıcı çemberin içinde veya çemberin yakınında, widget göster
-      _showWarning();
-      Timer(Duration(seconds: 10), () {
-        _hideWarning();
-      });
-    }
-  }*/
-
-
 
   Widget _buildWarning() {
     return _showingWarning
@@ -119,9 +78,6 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   }
 
 
-  //location
-
-
   static late CameraPosition _cameraPosition = CameraPosition(
   bearing: 192.8334901395799,
   target: LatLng(39.96521,33.16189),
@@ -134,9 +90,17 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
     super.initState();
     flutterTts = FlutterTts();
     _getCurrentLocation();
+    _positionStream = Geolocator.getPositionStream().listen((position) {
+      setState(() {
+        _cameraPosition = CameraPosition(
+          target: LatLng(position.latitude, position.longitude),
+          zoom: 15,
+        );
+      });
+    });
   }
 
-  var _positionStream;
+
 
   void _getCurrentLocation() async {
     bool serviceEnabled;
@@ -148,6 +112,8 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            titleTextStyle: GoogleFonts.rajdhani(color: Colors.black),
+            icon: Icon(Icons.error_outline, color: Colors.black,),
             title: Text('Lütfen Konum Hizmetlerine İzin Verin!'),
           );
         },
@@ -201,18 +167,38 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   }
 
   void _onPositionUpdate(Position position) {
-    double distance = Geolocator.distanceBetween(
-      position.latitude,
-      position.longitude,
-        39.90737782488754, 33.22217606444013
-    );
+    for(LatLng riskPoint in riskPoints) {
+      double distance = Geolocator.distanceBetween(
+          position.latitude,
+          position.longitude,
+          riskPoint.latitude,
+          riskPoint.longitude
+      );
 
-    if (distance <= 150) {
-      // Kullanıcı çemberin içinde veya çemberin yakınında, widget göster
-      _showWarning();
-      Timer(Duration(seconds: 10), () {
-        _hideWarning();
-      });
+      int distanceValue;
+
+      if(speed >= 1 && speed <= 80){
+        distanceValue = 200;
+      }
+      else if(speed >= 81 && speed <= 100) {
+        distanceValue = 300;
+      }
+      else if(speed >= 101 && speed <= 120){
+        distanceValue = 400;
+      }
+      else if(speed >= 121 && speed >= 140){
+        distanceValue = 500;
+      }
+      else{
+        distanceValue = 800;
+      }
+
+      if (distance <= distanceValue) {
+        _showWarning();
+        Timer(Duration(seconds: 10), () {
+          _hideWarning();
+        });
+      }
     }
   }
 
@@ -234,14 +220,14 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
         body: Stack(
           children: [
             GoogleMap(
-              compassEnabled: false,
+              compassEnabled: true,
               indoorViewEnabled: true,
               mapToolbarEnabled: true,
               rotateGesturesEnabled: true,
               tiltGesturesEnabled: true,
               zoomControlsEnabled: true,
               zoomGesturesEnabled: true,
-              buildingsEnabled: false,
+              buildingsEnabled: true,
               trafficEnabled: traffic,
               mapType: mapType,
               initialCameraPosition: _cameraPosition,
@@ -297,28 +283,28 @@ Set<Circle> _circleSet(){
     },
     consumeTapEvents: true,
   ),
-    Circle(circleId: CircleId('bbb'),
-      center: LatLng(39.9172800,33.2324753),
+    Circle(circleId: CircleId('aaa'),
+      center: LatLng(39.92447870431509, 33.21703466803235),
       fillColor: Colors.red.withOpacity(0.5),
-      radius: 3,
+      radius: 20,
+      strokeWidth: 0,
+    ),
+    Circle(circleId: CircleId('bbb'),
+      center: LatLng(39.95219428726504, 33.188385228779964),
+      fillColor: Colors.blue.withOpacity(0.5),
+      radius: 20,
       strokeWidth: 0,
     ),
     Circle(circleId: CircleId('ccc'),
-      center: LatLng(39.9168835,33.2318066),
-      fillColor: Colors.blue.withOpacity(0.5),
-      radius: 16,
+      center: LatLng(39.96503947341852, 33.1678746115696),
+      fillColor: Colors.orange.withOpacity(0.5),
+      radius: 20,
       strokeWidth: 0,
     ),
     Circle(circleId: CircleId('ddd'),
-      center: LatLng(39.9199002,33.2350055),
-      fillColor: Colors.blue.withOpacity(0.5),
-      radius: 16,
-      strokeWidth: 0,
-    ),
-    Circle(circleId: CircleId('eee'),
-      center: LatLng(39.920235,33.233821),
+      center: LatLng(39.93236320706288, 32.65292041923445),
       fillColor: Colors.red.withOpacity(0.5),
-      radius: 7,
+      radius: 20,
       strokeWidth: 0,
     ),
   };
