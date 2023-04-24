@@ -12,13 +12,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 5), () {Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => GoogleMapsView(),));});
+    Future.delayed(const Duration(seconds: 3), () {Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => GoogleMapsView(),));});
 
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.white,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Center(
             child: Row(
               children: [
-                Image.asset('assets/images/teknofest.png'),
+
 
               ],
             ),

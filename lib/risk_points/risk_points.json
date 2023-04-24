@@ -1,27 +1,87 @@
 [
   {
-    "noktaX": "123.123123",
-    "noktay": "12.123123",
-    "kazaSayisi": 13,
-    "kazalarinSebepleri": {
-      "Kaza Sebebi 1": "%54",
-      "Kaza Sebebi 2": "%31",
-      "Kaza Sebebi 3": "%10",
-      "Kaza Sebebi 4": "%05"
-    },
-    "kazalarinYasandigiTarihler" : {
-      "Kış - Ocak": "%55",
-      "Sonbahar - Ekim": "%30",
-      "İlkbahar - Mayıs": "%10",
-      "Yaz - Haziran": "%05"
-    },
-    "kazalarinYasandigiSaatler": {
-      "Öğleden Önce - 07.54": "%60",
-      "Öğleden Sonra - 20.45": "%40"
+    "xKoordinat": 39.91739962721134,
+    "yKoordinat": 33.245311494983255,
+    "kazaSayisi": 2,
+    "kazaSekli": [
+      {
+        "kazaTipi": "DEVRİLME,SAVRULMA,TAKLA",
+        "Adet": 1,
+        "%": 50
+      },
+      {
+        "kazaTipi": "YANDAN &#199;ARPMA",
+        "Adet": 1,
+        "%": 50
+      }
+    ]
   },
-    "kazalarinYasandigiHavaDurumu": {
-      "Yağışlı": "%60",
-      "Açık": "%40"
-    }
+  {
+    "xKoordinat": 39.96482,
+    "yKoordinat": 32.6430425,
+    "kazaSayisi": 3,
+    "kazaSekli": [
+      {
+        "kazaTipi": "ARKADAN &#199;ARPMA",
+        "Adet": 1,
+        "%": 33
+      },
+      {
+        "kazaTipi": "EBGEL/CİSİM İLE &#199;ARPIŞMA",
+        "Adet": 1,
+        "%": 33
+      },
+      {
+        "kazaTipi": "YOLDAN &#199;IKMA",
+        "Adet": 1,
+        "%": 33
+      }
+    ]
+  },
+  {
+    "xKoordinat": 39.959015,
+    "yKoordinat": 32.829055000000004,
+    "kazaSayisi": 3,
+    "kazaSekli": [
+      {
+        "kazaTipi": "YANDAN &#199;ARPMA",
+        "Adet": 3,
+        "%": 100
+      }
+    ]
+  },
+  {
+    "xKoordinat": 39.3212,
+    "yKoordinat": 33.04285,
+    "kazaSayisi": 1,
+    "kazaSekli": [
+      {
+        "kazaTipi": "ARKADAN &#199;ARPMA",
+        "Adet": 1,
+        "%": 100
+      }
+    ]
+  },
+  {
+    "xKoordinat": 39.98163875,
+    "yKoordinat": 32.8340275,
+    "kazaSayisi": 4,
+    "kazaSekli": [
+      {
+        "kazaTipi": "YANDAN &#199;ARPMA",
+        "Adet": 2,
+        "%": 50
+      },
+      {
+        "kazaTipi": "YAYAYA &#199;ARPMA",
+        "Adet": 1,
+        "%": 25
+      },
+      {
+        "kazaTipi": "DURAN ARACA &#199;ARPMA",
+        "Adet": 1,
+        "%": 25
+      }
+    ]
   }
 ]

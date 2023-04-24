@@ -46,6 +46,7 @@ dev_dependencies:
   google_fonts: ^3.0.1
   geolocator: ^9.0.2
   flutter_tts: ^3.6.3
+  uuid: ^3.0.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

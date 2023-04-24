@@ -24,7 +24,7 @@ class _AnimationFloatingActionButtonState extends State<AnimationFloatingActionB
   @override
   initState() {
     _animationController =
-    AnimationController(vsync: this, duration: Duration(milliseconds: 500))
+    AnimationController(vsync: this, duration: const Duration(milliseconds: 100))
       ..addListener(() {
         setState(() {});
       });

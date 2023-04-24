@@ -1,6 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 import 'dart:async';
-
+import 'package:uuid/uuid.dart';
+import 'package:risk/risk_points/risk_points.dart';
 import 'package:risk/screens/map/bottomSheet.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
@@ -11,17 +12,25 @@ import 'package:risk/screens/map/animationFloatingActionButton.dart';
 import 'package:risk/screens/map/appBar.dart';
 import 'package:risk/screens/map/mapSettingsBottomSheet.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:risk/screens/settings/settings.dart';
 
+Set<Circle>? circles;
+String error_message = 'Risk Noktası!';
+Set<Map<String, dynamic>> risk_points = risk_points;
+var uuid = Uuid();
+var uniqueId = uuid.v4();
 
-
-
-Set<LatLng> riskPoints = {
-  const LatLng(39.92447870431509, 33.21703466803235),
-  const LatLng(39.96521,33.16189),
-  const LatLng(39.95219428726504, 33.188385228779964),
-  const LatLng(39.96503947341852, 33.1678746115696),
-  const LatLng(39.966733597008115, 33.141701590708294),
-};
+Color circleColor(traffic_accident){
+  if(traffic_accident <= 3){
+    return Colors.blue.withOpacity(0.5);
+  }
+  else if(traffic_accident <= 6){
+    return Colors.orange.withOpacity(0.5);
+  }
+  else{
+    return Colors.red.withOpacity(0.5);
+  }
+}
 
 Polygon ankara = const Polygon(
   polygonId: PolygonId('Ankara'),
@@ -55,32 +64,33 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   StreamSubscription<Position>? _positionStream;
   bool _showingWarning = false;
 
-  Widget _buildWarning() {
-    return _showingWarning
-        ? GestureDetector(
-      onTap: ()=> setState(() {
-        _speak('Risk Noktasına Yaklaşıyorsunuz, Lütfen Hızınızı Düşürün!');
-      }),
-          child: Container(
-            decoration: BoxDecoration(
-      color: Colors.red,
-      borderRadius: BorderRadius.circular(5.0),
-            ),
-      margin: EdgeInsets.all(8.0),
-      padding: EdgeInsets.all(8.0),
-      child: Text(
-          'Risk Noktasına Yaklaşıyorsunuz, Lütfen Hızınızı Düşürün!',
-          style: TextStyle(color: Colors.white),
-      ),
-    ),
-        )
-        : SizedBox.shrink();
+  Widget _buildWarning(error_message) {
+    if (_showingWarning) {
+      _speak('Risk Noktasına Yaklaşıyorsunuz, Lütfen Hızınızı Düşürün!');
+      _showingWarning = false;
+      return GestureDetector(
+        onTap: () {},
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          margin: EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            'Risk Noktasına Yaklaşıyorsunuz, Lütfen Hızınızı Düşürün!',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    } else {
+      return SizedBox.shrink();
+    }
   }
-
 
   static late CameraPosition _cameraPosition = CameraPosition(
   bearing: 192.8334901395799,
-  target: LatLng(39.96521,33.16189),
+  target: LatLng(39.93670009643588, 32.85681947778169),
   tilt: 59.440717697143555,
   zoom: 19.151926040649414,
   );
@@ -131,7 +141,9 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Lütfen Konum Erişimine İzin Verin!'),
+              titleTextStyle: GoogleFonts.rajdhani(color: Colors.black),
+              icon: Icon(Icons.error_outline, color: Colors.black,),
+              title: Text('Uygulamayı Kullanabilmeniz için konum verilerine izin vermiş olmanız gerekmektedir'),
             );
           },
         );
@@ -158,6 +170,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
     await flutterTts.setPitch(1); // Ses perdesi
     await flutterTts.setSpeechRate(0.7); // Konuşma hızı
     await flutterTts.speak(text); // Metni oku
+   await flutterTts.setVolume(decibel as double);
   }
 
   void dispose() {
@@ -167,35 +180,42 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
   }
 
   void _onPositionUpdate(Position position) {
-    for(LatLng riskPoint in riskPoints) {
+    for(Map<String, dynamic> risk_point in risk_points) {
+      circles?.add(Circle(circleId: CircleId(uniqueId), center: LatLng(risk_point['xKoordinat'],risk_point['yKoordinat'],), fillColor: circleColor(risk_point['kazaSayisi'],), radius: 20,
+        strokeWidth: 0, ));
       double distance = Geolocator.distanceBetween(
           position.latitude,
           position.longitude,
-          riskPoint.latitude,
-          riskPoint.longitude
+          risk_point['xKoordinat'],
+          risk_point['yKoordinat']
       );
+
+
 
       int distanceValue;
 
-      if(speed >= 1 && speed <= 80){
-        distanceValue = 200;
+      if(speed.round() >= 0 && speed.round() <= 80){
+        distanceValue = 250;
       }
-      else if(speed >= 81 && speed <= 100) {
-        distanceValue = 300;
-      }
-      else if(speed >= 101 && speed <= 120){
+      else if(speed.round() >= 81 && speed.round() <= 100) {
         distanceValue = 400;
       }
-      else if(speed >= 121 && speed >= 140){
-        distanceValue = 500;
+      else if(speed.round() >= 101 && speed.round() <= 120){
+        distanceValue = 700;
+      }
+      else if(speed.round() >= 121 && speed.round() >= 140){
+        distanceValue = 1000;
       }
       else{
-        distanceValue = 800;
+        distanceValue = 1250;
       }
 
       if (distance <= distanceValue) {
         _showWarning();
-        Timer(Duration(seconds: 10), () {
+        setState(() {
+          error_message = risk_point['kazaSekli'].values.first;
+        });
+        Timer(const Duration(seconds: 10), () {
           _hideWarning();
         });
       }
@@ -235,7 +255,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
               myLocationEnabled: true,
               onMapCreated: (map){},
               polygons: {ankara},
-              circles: _circleSet(),
+              circles: circles!,
             ),
             const Align(
               alignment: Alignment.topCenter,
@@ -248,7 +268,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: _buildWarning(),
+                child: _buildWarning(error_message),
               ),
               ),
           ],
@@ -264,14 +284,13 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
  //
 
 
-  
 
 
 
-Set<Circle> _circleSet(){
+
+Set<Circle> circleSet(){
   return <Circle>{
-
-  Circle(circleId: const CircleId('MQdYvdUs1IJSbqJBmx0D'),
+    Circle(circleId: const CircleId('MQdYvdUs1IJSbqJBmx0D'),
     center: const LatLng(39.96521,33.16189),
     fillColor: Colors.red.withOpacity(0.5),
     radius: 50,
@@ -310,3 +329,4 @@ Set<Circle> _circleSet(){
   };
 }
 }
+

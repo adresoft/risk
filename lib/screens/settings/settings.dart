@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-int _decibel = 1;
+int decibel = 1;
 String warningMessage = 'Hepsi';
 bool powerMode = false;
 
@@ -40,13 +40,13 @@ class _SettingsState extends State<Settings> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(onPressed: () => setState(() {
-                  _decibel == 0 ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Desibel 0\'dan düşük olamaz!'))) : _decibel--;
+                  decibel == 0 ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Desibel 0\'dan düşük olamaz!'))) : decibel--;
                 }), icon: const Icon(Icons.arrow_back_ios,color: Colors.black,), style: ButtonStyle(
                   overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
                 ),),
-                Text(_decibel.toString(), style: GoogleFonts.rajdhani(color: Colors.black),),
+                Text(decibel.toString(), style: GoogleFonts.rajdhani(color: Colors.black),),
                 IconButton(onPressed: () => setState(() {
-                  _decibel == 30 ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Desibel 30\'dan büyük olamaz!'))) : _decibel++;
+                  decibel == 30 ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Desibel 30\'dan büyük olamaz!'))) : decibel++;
                 }), icon: const Icon(Icons.arrow_forward_ios, color: Colors.black,), style: ButtonStyle(
                   overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
                 ),)

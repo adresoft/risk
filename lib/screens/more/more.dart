@@ -18,7 +18,6 @@ class _MoreState extends State<More> {
           appBar: AppBar(
             leading: IconButton(onPressed: ()=> Navigator.pop(context),icon: Icon(Icons.clear)),
             backgroundColor: Colors.red,
-            title: Text('Ders Programı',style: GoogleFonts.quicksand(),),
             bottom: TabBar(
               isScrollable: true,
               labelColor: Colors.white,

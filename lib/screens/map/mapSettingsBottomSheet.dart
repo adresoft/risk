@@ -125,11 +125,11 @@ void mapSettingsBottomSheet(BuildContext context) {
                         ),
                         onPressed: () => traffic = !traffic,
                         child:Text(
-                                trafficMessage,
+                                traffic ? 'Etkin' : 'Devredışı',
                                 style:
                                     GoogleFonts.quicksand(color: Colors.black),
-                              )
-                           ,),),
+                        ),
+                    ),),
               ],
             ),
           ],

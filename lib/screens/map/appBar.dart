@@ -1,10 +1,25 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:location/location.dart';
+import 'package:geolocator/geolocator.dart';
 import 'google_maps_view.dart';
 
-LocationData? currentLocation;
-double speed = currentLocation!.speed ?? 0;
+double speed = 0;
+
+StreamSubscription<Position>? positionStreamSubscription;
+
+void startListening() {
+  positionStreamSubscription =
+      Geolocator.getPositionStream().listen((Position position) {
+        double speedInKmh = position.speed * 3.6;
+        speed = speedInKmh;
+      });
+}
+
+void stopListening() {
+  positionStreamSubscription?.cancel();
+}
+
 
 class AppBarWidget extends StatelessWidget {
   const AppBarWidget({Key? key}) : super(key: key);
@@ -75,7 +90,7 @@ class AppBarWidget extends StatelessWidget {
                       ],
                     ),]
               ),
-            );3
+            );
   }
 
   Container speedContainer() {
@@ -85,7 +100,7 @@ class AppBarWidget extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(5.0),
               ),
-              child: ListTile(leading: const Icon(Icons.speed, color: Colors.black,),title: Text(currentLocation == null ? 'Null' : speed.round().toString(), style: GoogleFonts.rajdhani(fontWeight: FontWeight.bold),),),
+              child: ListTile(leading: const Icon(Icons.speed, color: Colors.black,),title: Text(speed.round().toString(), style: GoogleFonts.rajdhani(fontWeight: FontWeight.bold),),),
             );
   }
 }
